@@ -1,0 +1,174 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  font-family: sans-serif;
+  background-color: #ffffff; /* match center */
+}
+
+/* Left Panel */
+.left-panel {
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.5;
+  flex-direction: column;
+  width: 10%;
+  min-width: 100px;
+  background-color: #e0f7fa;
+  color: #333333;
+  padding: 16px;
+  border-right: 1px solid #b2dfdb;
+  margin-bottom: 8px;
+  display: block;
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.05);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Center Panel */
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  color: #333333;
+  padding: 16px; 
+  flex: 1;
+  height: 100vh; /* ✅ Fully fix center height to window */
+  overflow: hidden;
+}
+
+/* Right Panel */
+.right-panel {
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.5;
+  width: 10%;
+  min-width: 100px;
+  background-color: #f1f8e9;
+  color: #333333;
+  padding: 16px;
+  border-left: 1px solid #b2dfdb;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  display: block;
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.05);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.model-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 30%;  /* Limit model list height if you want */
+}
+.model-cartoon {
+  flex: 0 0 auto;
+  margin-top: 16px; /* ✅ About 1cm gap */
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* Model folder and items */
+.model-folder {
+  display: flex;           
+  align-items: center;     
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-family: monospace;
+  background-color: #ffffff;
+}
+
+.model-folder:hover {
+  background-color: #b2dfdb;
+}
+
+.model-folder.selected {
+  background-color: #4db6ac;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.dataset-folder {
+  display: flex;                
+  align-items: center;          
+  cursor: pointer;
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  font-family: monospace;
+  background-color: #ffffff;
+}
+
+.dataset-folder:hover {
+  background-color: #b2dfdb;
+}
+
+.dataset-folder.selected {
+  background-color: #4db6ac;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Sliders */
+input[type="range"] {
+  width: 100%;
+}
+
+button {
+  background-color: #4db6ac;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00897b;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: #b2dfdb;
+  border-radius: 3px;
+  outline: none;
+}
+ 
+.plots-container {
+  display: flex;
+  flex-direction: row; /* ✅ Default: side-by-side */
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  height: 80%;
+  flex: "1 1 auto";
+  overflow: "auto" 
+}
+
+.single-plot {
+  flex: 1 1 500px; /* ✅ Allow shrinking to 500px min per plot */
+  min-width: 300px;
+  max-width: 800px;
+  height: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+@media (max-width: 1000px) {
+  .plots-container {
+    flex-direction: column;
+    height: 60%; /* ✅ A bit taller when stacked */
+  }
+
+  .single-plot {
+    height: 40%; /* ✅ Each plot gets about 45% of viewport height */
+    max-height: 50%; /* ✅ Never taller than 50% of window */
+  }
+}

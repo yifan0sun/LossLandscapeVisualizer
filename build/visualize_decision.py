@@ -140,15 +140,10 @@ if __name__ == "__main__":
         datasets = ["two_blobs_separate", "two_blobs_overlap",    "half_moons", "spirals", "four_corners"]
     else:
         datasets = [args.dataset]
-        
-
-    for width in [10,25,50,100]:
-        
-        for depth in [1,2,3,4]:
-            arch = [width for k in range(depth)]
-            
-            for dataset in datasets:
-                fig = None
-                for epoch in epochs:
-                    decision_outputs = compute_decision( arch,  dataset, train=True, epoch=epoch, ab_range=1.0, gridsize=10)
-                    #fig = plot_decision_boundary(decision_outputs,  title='Decision boundary, ep%d' % epoch, animate=epoch < epochs[-1], fig=fig)
+         
+    for dataset in datasets:
+        fig = None
+        for epoch in epochs:
+            decision_outputs = compute_decision( args.arch,  dataset, train=True, epoch=epoch, ab_range=1.0, gridsize=10)
+            if args.plot:
+                fig = plot_decision_boundary(decision_outputs,  title='Decision boundary, ep%d' % epoch, animate=epoch < epochs[-1], fig=fig)

@@ -219,15 +219,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--arch", nargs="+", type=int, required=True, help="Architecture (e.g. --arch 128 64)")
     parser.add_argument("--epochs",  required = True, help="Checkpoint epoch to use")
-    parser.add_argument("--gridsize",  help="Grid size", type=int)
+    parser.add_argument("--gridsize",  help="Grid size", type=int, default=10)
     parser.add_argument("--plot", action="store_true", help="Display 3D plot")
     parser.add_argument("--range", type = float, default="1.0", help="a,b range (e.g. [-range, range])")
     parser.add_argument("--dataset", type=str, required=True,
                         choices=["two_blobs_separate", "two_blobs_overlap",
                                  "half_moons", "spirals", "four_corners", "all"],
                         help="Dataset name")
-    parser.add_argument("--train", action="store_true", help="Train the model", default=False) 
-    parser.add_argument("--save_zrange", action="store_true", help="Compute and save global z-range for given settings")
+    parser.add_argument("--train", action="store_true", help="Use trained model", default=False) 
+    parser.add_argument("--zrange", action="store_true", help="Compute and save global z-range for given settings")
 
     args = parser.parse_args()
     
@@ -250,10 +250,10 @@ if __name__ == "__main__":
         datasets = [args.dataset]
         
 
-    for ranges in [.1,.01,1]:
-        for width in [10,25,50,100]:
-            
-            for depth in [1,2,3,4]:
+    for width in [10,25,50,100]:
+        
+        for depth in [1,2,3,4]:
+            for ranges in [0.01,.1,1]:
                 arch = [width for k in range(depth)]
                 
                 for dataset in datasets:
@@ -261,7 +261,7 @@ if __name__ == "__main__":
                     for epoch in epochs:
                         a_vals, b_vals, losses = compute_loss_grid(arch,  dataset, train=args.train, epoch=epoch, ab_range=ranges, gridsize=args.gridsize)
                 
-                    if args.save_zrange:
+                    if args.zrange:
                         print('compute_and_save_zrange...')
                         compute_and_save_zrange(
                             arch=arch,

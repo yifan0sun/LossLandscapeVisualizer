@@ -73,13 +73,14 @@ def selection():
 @app.route("/get_surface_plot_data", methods=["POST"])
 def get_surface_plot_data():
     data = request.get_json()
-    print(data)
 
     model = data.get('model')  
     dataset = data.get('dataset')
     epoch = data.get('epoch')
     zoom = data.get('zoom')
     split = data.get('split')
+
+
 
 
     # Build path
@@ -92,7 +93,7 @@ def get_surface_plot_data():
         f"range{zoom}",
         f"ep{epoch}"
     )
-    
+    print(cache_land_dir)
     cache_range_dir = os.path.join(
         CACHE_LAND_ROOT,
         model,
@@ -101,6 +102,7 @@ def get_surface_plot_data():
         f"range{zoom}"
     )
      
+    print(cache_range_dir)
     
     a_path = os.path.join(cache_land_dir, "a_vals.npy")
     b_path = os.path.join(cache_land_dir, "b_vals.npy")
@@ -152,10 +154,10 @@ def get_decbnd_plot_data():
 
     output = pickle.load(open(decision_output_dir,'rb'))
     output['x'] = output['xx'][:,0]
-    output['y'] = output['yy'][0,:]
+    output['y'] = output['yy'][0,:] 
+    output['preds'] = output['preds'].T
 
     for k,v in output.items():
-        print(k)
         if k == 'train_labels' or k == 'test_labels':
             output[k] = output[k][:,0].tolist() 
         else:

@@ -13,7 +13,8 @@ from data import load_dataset
 
 CACHE_ROOT = "../landscapes"
 MODELS_DIR = "../models"
- 
+
+torch.set_num_threads(4)
 def compute_loss(model: nn.Module, dataset_name: str, train=True) -> float:
     """Compute average BCE loss of a model on train or test set."""
     dataset = load_dataset(dataset_name, train=train)
@@ -250,23 +251,23 @@ if __name__ == "__main__":
         datasets = [args.dataset]
         
 
-    for width in [10,25,50,100]:
+    for width in [5,10,25,50,100]:
         
         for depth in [1,2,3,4]:
-            for ranges in [0.01,.1,1]:
+            for ranges in [0.01,.1,1,10]:
                 arch = [width for k in range(depth)]
                 
                 for dataset in datasets:
                     fig = None
                     for epoch in epochs:
-                        a_vals, b_vals, losses = compute_loss_grid(arch,  dataset, train=args.train, epoch=epoch, ab_range=ranges, gridsize=args.gridsize)
+                        a_vals, b_vals, losses = compute_loss_grid(arch,  dataset, train=True, epoch=epoch, ab_range=ranges, gridsize=args.gridsize)
                 
                     if args.zrange:
                         print('compute_and_save_zrange...')
                         compute_and_save_zrange(
                             arch=arch,
                             dataset=dataset,
-                            train=args.train,
+                            train=True,
                             ab_range=ranges,
                             gridsize=args.gridsize
                         )

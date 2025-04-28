@@ -216,7 +216,7 @@ if __name__ == "__main__":
             plot_model(args.arch, args.epochs, dataset)
     """
     
-    for width in [10,25,50,100]:
+    for width in [1,2,3,4,5,6,7,8,9]:
         
         for depth in [1,2,3,4]:
             arch = [width for k in range(depth)]

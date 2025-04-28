@@ -82,7 +82,7 @@ def get_surface_plot_data():
 
 
 
-
+    print(data)
     # Build path
     CACHE_LAND_ROOT = "../landscapes"
     cache_land_dir = os.path.join(

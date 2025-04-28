@@ -1,1 +1,0 @@
-To recompile the front end code, you need to go into frontend\src, type npm run build, then copy everything from the public folder and move it to the root directory. 

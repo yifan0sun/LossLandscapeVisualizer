@@ -4,6 +4,7 @@
 A web-based tool for exploring neural network loss landscapes and decision boundaries during training.
 
 URL: https://yifan0sun.github.io/LossLandscapeVisualizer/index.html
+
 ---
 
 ## 🌟 Overview

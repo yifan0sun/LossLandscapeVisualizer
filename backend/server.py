@@ -40,6 +40,7 @@ def selected_model(model):
 
 @app.route("/list_datasets")
 def list_datasets():
+    print("🔵 /list_datasets was called")
     datasets = set()
     for entry in os.scandir(DATA_DIR):
         if entry.is_file():

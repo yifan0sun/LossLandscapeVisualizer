@@ -59,6 +59,8 @@ def selected_dataset(dataset):
 
 @app.route("/static/previews/<filename>")
 def serve_preview(filename): 
+    print(f"✅ preview selected on frontend: {DATA_DIR},{filename}")
+
     return send_from_directory(DATA_DIR, filename)
 
 

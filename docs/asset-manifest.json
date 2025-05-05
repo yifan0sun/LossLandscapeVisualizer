@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/LossLandscapeVisualizer/static/css/main.4b35661b.css",
+    "main.js": "/LossLandscapeVisualizer/static/js/main.3514e376.js",
+    "static/js/453.ed3810f9.chunk.js": "/LossLandscapeVisualizer/static/js/453.ed3810f9.chunk.js",
+    "index.html": "/LossLandscapeVisualizer/index.html",
+    "main.4b35661b.css.map": "/LossLandscapeVisualizer/static/css/main.4b35661b.css.map",
+    "main.3514e376.js.map": "/LossLandscapeVisualizer/static/js/main.3514e376.js.map",
+    "453.ed3810f9.chunk.js.map": "/LossLandscapeVisualizer/static/js/453.ed3810f9.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.4b35661b.css",
+    "static/js/main.3514e376.js"
+  ]
+}

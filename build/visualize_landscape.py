@@ -6,15 +6,16 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
+import numpy as np
+from tqdm import tqdm
 
 from model import BlobMLP, arch_to_name, get_model_path
 from train_eval_model import latest_checkpoint
 from data import load_dataset
 
-CACHE_ROOT = "../landscapes"
-MODELS_DIR = "../models"
+#CACHE_ROOT = "../backend/landscapes"
+#MODELS_DIR = "../backend/models"
 
-torch.set_num_threads(4)
 def compute_loss(model: nn.Module, dataset_name: str, train=True) -> float:
     """Compute average BCE loss of a model on train or test set."""
     dataset = load_dataset(dataset_name, train=train)
@@ -65,6 +66,8 @@ def combine_models(base, dx, dy, a, b,arch):
 
 
 def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsize=10):
+    CACHE_ROOT = "../backend/landscapes"
+    MODELS_DIR = "../backend/models"
 
     train_str = 'train' if train else 'test'
     base_path = os.path.join(MODELS_DIR,  arch_to_name(arch), dataset,   f"ep{epoch}.pth")
@@ -86,7 +89,6 @@ def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsi
 
     
    
-   
     # Load or initialize
     acand = np.linspace(-ab_range, ab_range, gridsize)
     if os.path.exists(loss_file) and os.path.exists(a_file) and os.path.exists(b_file):
@@ -98,6 +100,7 @@ def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsi
             b = np.load(b_file)
             losses = np.load(loss_file)
             print(f"📂 Loaded cached grid {losses.shape} from {cache_dir}")
+            print(a.shape,b.shape,losses.shape)
             return a, b, losses
     
 
@@ -112,11 +115,14 @@ def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsi
     # Load model and directions
     base_model = BlobMLP(hidden_layers=arch)
     base_model.load_state_dict(torch.load(base_path))
+
+
+
     x = load_direction(os.path.join(cache_xy_dir, "x.pt"), arch)
     y = load_direction(os.path.join(cache_xy_dir, "y.pt"), arch)
 
     # Compute missing values
-    for i, aa in enumerate(a):
+    for i, aa in enumerate(tqdm(a, desc="Outer loop (a)")):
         for j, bb in enumerate(b): 
             perturbed_model = combine_models(base_model, x, y, aa, bb, arch)
             loss = compute_loss(perturbed_model, dataset, train=False)
@@ -132,6 +138,9 @@ def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsi
 
 
 def compute_and_save_zrange(arch, dataset, train=True, ab_range=1.0, gridsize=10):
+    CACHE_ROOT = "../backend/landscapes"
+    MODELS_DIR = "../backend/models"
+    
     """Compute global [zmin, zmax] across all available epochs and save it."""
     train_str = 'train' if train else 'test'
     cache_base_dir = os.path.join(CACHE_ROOT, arch_to_name(arch), dataset, train_str, f"range{ab_range}")
@@ -139,18 +148,21 @@ def compute_and_save_zrange(arch, dataset, train=True, ab_range=1.0, gridsize=10
 
 
     # --- If zrange already exists, skip ---
-    if os.path.exists(zrange_file):
-        print(f"✅ zrange already computed at {zrange_file}. Skipping computation.")
-        return
+    #if os.path.exists(zrange_file):
+    #    print(f"✅ zrange already computed at {zrange_file}. Skipping computation.")
+    #    return
 
     if not os.path.exists(cache_base_dir):
         print(f"⚠️ No cache directory found at {cache_base_dir}")
         return
 
 
-    epoch_max_losses = []
+    
+    epoch_max_loss = None
+    epoch_min_loss = None
 
     # Go through all saved epochs
+    
     for ep_folder in sorted(os.listdir(cache_base_dir)):
 
         
@@ -166,26 +178,34 @@ def compute_and_save_zrange(arch, dataset, train=True, ab_range=1.0, gridsize=10
         epoch_dir = os.path.join(cache_base_dir, ep_folder)
         loss_file = os.path.join(epoch_dir, "loss.npy")
 
-        losses = np.load(loss_file)
-        epoch_max_losses.append(losses.max())
-        print(ep_folder)
+        if not os.path.exists(loss_file):
+            print(f"⚠️ No loss file found at {loss_file}")
+            continue
 
 
+        losses = np.load(loss_file) 
 
-    if not epoch_max_losses:
+        if epoch_min_loss is None:
+            epoch_min_loss = np.percentile(losses, 5)
+            epoch_max_loss = np.percentile(losses, 95)
+        else:
+            epoch_min_loss = min(epoch_min_loss, np.percentile(losses, 5))
+            epoch_max_loss = max(epoch_max_loss, np.percentile(losses, 95))
+    epoch_range = epoch_max_loss- epoch_min_loss
+    epoch_min_loss = epoch_min_loss-.1*epoch_range
+    epoch_max_loss = epoch_max_loss+.1*epoch_range
+    print(epoch_min_loss,epoch_max_loss)
+
+
+    if  epoch_max_loss is None:
         print(f"❌ No loss files found to compute zrange in {cache_base_dir}")
         return
 
-
-    # --- Now do robust zrange calculation ---
-    zmin = 0.0
-    sorted_max_losses = np.sort(epoch_max_losses)
-    percentile_index = int(0.8 * len(sorted_max_losses)) - 1
-    zmax = sorted_max_losses[percentile_index]
-
+ 
+    print(zrange_file)
     # Save it
-    np.save(zrange_file, np.array([zmin, zmax]))
-    print(f"✅ Saved robust zrange [0.0, {zmax:.4f}] to {zrange_file}")
+    np.save(zrange_file, np.array([epoch_min_loss, epoch_max_loss]))
+    print(f"✅ Saved robust zrange [{epoch_min_loss:.4f}, {epoch_max_loss:.4f}] to {zrange_file}")
 
 
 def plot_surface(a_vals, b_vals, losses, title="Loss Landscape", animate=False, fig=None):
@@ -218,7 +238,7 @@ def plot_surface(a_vals, b_vals, losses, title="Loss Landscape", animate=False, 
 # CLI interface
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--arch", nargs="+", type=int, required=True, help="Architecture (e.g. --arch 128 64)")
+    parser.add_argument("--arch", nargs="+", type=int,  help="Architecture (e.g. --arch 128 64)")
     parser.add_argument("--epochs",  required = True, help="Checkpoint epoch to use")
     parser.add_argument("--gridsize",  help="Grid size", type=int, default=10)
     parser.add_argument("--plot", action="store_true", help="Display 3D plot")
@@ -235,7 +255,7 @@ if __name__ == "__main__":
     print(args)
 
     if args.epochs.startswith('*'):
-        epochs = range(1,int(args.epochs.strip('*')))
+        epochs = range(0,int(args.epochs.strip('*')),10)
     else:
         epochs = [int(args.epochs)]
     
@@ -251,17 +271,19 @@ if __name__ == "__main__":
         datasets = [args.dataset]
         
 
-    for width in [5,10,25,50,100]:
-        
-        for depth in [1,2,3,4]:
-            for ranges in [0.01,.1,1,10]:
+    for width in [25]:
+        for depth in [16]:
+            for ranges in [10]:
+	
                 arch = [width for k in range(depth)]
-                
+        
                 for dataset in datasets:
+                    
+                    
                     fig = None
-                    for epoch in epochs:
+                    for epoch in epochs: 
                         a_vals, b_vals, losses = compute_loss_grid(arch,  dataset, train=True, epoch=epoch, ab_range=ranges, gridsize=args.gridsize)
-                
+                        
                     if args.zrange:
                         print('compute_and_save_zrange...')
                         compute_and_save_zrange(

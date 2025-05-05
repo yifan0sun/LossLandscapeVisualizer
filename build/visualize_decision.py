@@ -11,21 +11,21 @@ from model import BlobMLP, arch_to_name, get_model_path
 from train_eval_model import latest_checkpoint
 from data import load_dataset
 
-CACHE_ROOT = "../decisionboundaries"
-MODELS_DIR = "../models"
+CACHE_ROOT = "../backend/decisionboundaries"
+MODELS_DIR = "../backend/models"
  
  
 
  
 
 
-def compute_decision(arch, dataset, train=True, epoch=1, ab_range=1.0, gridsize=10):
+def compute_decision(arch, dataset, train=True, epoch=1):
     """Compute or load decision boundary outputs for visualization."""
     train_str = 'train' if train else 'test'
     model_path = os.path.join(MODELS_DIR, arch_to_name(arch), dataset, f"ep{epoch}.pth")
     cache_dir = os.path.join(CACHE_ROOT, arch_to_name(arch), dataset)
     cache_file = os.path.join(cache_dir, f"ep{epoch}.pkl")
-    print(cache_dir, cache_file)
+    #print(cache_dir, cache_file,model_path)
 
     os.makedirs(cache_dir, exist_ok=True)
 
@@ -33,6 +33,7 @@ def compute_decision(arch, dataset, train=True, epoch=1, ab_range=1.0, gridsize=
     if os.path.exists(cache_file):
         with open(cache_file, 'rb') as f:
             decision_outputs = pickle.load(f)
+        #print("%s already exists" % cache_file)
         return decision_outputs
 
     # Otherwise compute
@@ -77,6 +78,7 @@ def compute_decision(arch, dataset, train=True, epoch=1, ab_range=1.0, gridsize=
 
     # Save outputs for future use
     with open(cache_file, 'wb') as f:
+        print("saving %s  " % cache_file)
         pickle.dump(decision_outputs, f)
 
     return decision_outputs
@@ -131,7 +133,7 @@ if __name__ == "__main__":
     print(args)
 
     if args.epochs.startswith('*'):
-        epochs = range(1,int(args.epochs.strip('*')))
+        epochs = range(0,int(args.epochs.strip('*')),10)
     else:
         epochs = [int(args.epochs)]
     
@@ -141,9 +143,28 @@ if __name__ == "__main__":
     else:
         datasets = [args.dataset]
          
-    for dataset in datasets:
-        fig = None
-        for epoch in epochs:
-            decision_outputs = compute_decision( args.arch,  dataset, train=True, epoch=epoch, ab_range=1.0, gridsize=10)
-            if args.plot:
-                fig = plot_decision_boundary(decision_outputs,  title='Decision boundary, ep%d' % epoch, animate=epoch < epochs[-1], fig=fig)
+
+    for width in [5,10,25,50,100]:
+
+        for depth in [1,2,4,8,16]:
+            arch = [width for k in range(depth)]
+
+            for dataset in datasets:
+                fig = None
+                for epoch in epochs:
+                    decision_outputs = compute_decision( arch,  dataset, train=True, epoch=epoch)
+                    
+                    #if args.plot:
+                    #    fig = plot_decision_boundary(decision_outputs,  title='Decision boundary, ep%d' % epoch, animate=epoch < epochs[-1], fig=fig)
+
+
+
+
+
+
+
+
+
+
+
+

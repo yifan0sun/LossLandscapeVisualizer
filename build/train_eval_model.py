@@ -14,7 +14,7 @@ from model import BlobMLP, arch_to_name
 from data import load_dataset
 
 # Constants
-BASE_MODELS_DIR = "../models"
+BASE_MODELS_DIR = "../backend/models"
 os.makedirs(BASE_MODELS_DIR, exist_ok=True)
 
 def compute_accuracy(model: nn.Module, dataset_name: str, train=True) -> float:
@@ -216,9 +216,9 @@ if __name__ == "__main__":
             plot_model(args.arch, args.epochs, dataset)
     """
     
-    for width in [1,2,3,4,5,6,7,8,9]:
+    for width in [5]:#[5,10,25,50,100]:
         
-        for depth in [1,2,3,4]:
+        for depth in [16]:#[1,2,4,8,16]:
             arch = [width for k in range(depth)]
             for dataset in  choices:
                 if args.train:

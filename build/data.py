@@ -9,6 +9,10 @@ from sklearn.datasets import make_blobs, make_moons
 
 # --- Dataset Generators ---
 
+
+DATA_CACHE_ROOT = "../backend/data/"
+IMAGES_CACHE_ROOT = "../backend/previews/"
+
 def make_two_blobs(std=0.5, centers=[[-2, 0], [2, 0]], n_samples=1000):
     data, labels = make_blobs(n_samples=n_samples, centers=centers, cluster_std=std, random_state=42)
     return torch.tensor(data, dtype=torch.float32), torch.tensor(labels, dtype=torch.long)
@@ -42,7 +46,7 @@ def make_four_corners(n_samples_per_class=250):
 
 # --- Save and Load ---
 
-def save_datasets(save_dir="../data", train_frac=0.5):
+def save_datasets(save_dir=DATA_CACHE_ROOT, train_frac=0.5):
     os.makedirs(save_dir, exist_ok=True)
 
     dataset_generators = {
@@ -71,7 +75,7 @@ def save_datasets(save_dir="../data", train_frac=0.5):
 
         print(f"✅ Saved {name} train/test splits.")
 
-def load_dataset(dataset_name: str, train=True, save_dir="../data"):
+def load_dataset(dataset_name: str, train=True, save_dir=DATA_CACHE_ROOT):
     split = "train" if train else "test"
     path = os.path.join(save_dir, f"{dataset_name}_{split}.pt")
 
@@ -84,7 +88,7 @@ def load_dataset(dataset_name: str, train=True, save_dir="../data"):
 
 # --- Plotting ---
 
-def plot_all_datasets(save_dir="../data"):
+def plot_all_datasets(save_dir=DATA_CACHE_ROOT):
     dataset_names = [
         "two_blobs_separate",
         "two_blobs_overlap",
@@ -114,7 +118,7 @@ def plot_all_datasets(save_dir="../data"):
         ax.axis('off')
 
         plt.tight_layout()
-        save_path = os.path.join(save_dir, "previews", f"{name}.png")
+        save_path = os.path.join(IMAGES_CACHE_ROOT,  f"{name}.png")
         plt.savefig(save_path, bbox_inches="tight")
         plt.show()
 

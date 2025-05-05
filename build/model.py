@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import os
 
-MODELS_DIR = "../models"  # Base directory for model checkpoints
+MODELS_DIR = "../backend/models"  # Base directory for model checkpoints
 
 def arch_to_name(arch):
     """Convert architecture list to a string name like 'mlp_64_64'."""

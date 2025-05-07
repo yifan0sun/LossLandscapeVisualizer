@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/LossLandscapeVisualizer/static/css/main.4b35661b.css",
-    "main.js": "/LossLandscapeVisualizer/static/js/main.f6760696.js",
+    "main.js": "/LossLandscapeVisualizer/static/js/main.bb277ba4.js",
     "static/js/453.ed3810f9.chunk.js": "/LossLandscapeVisualizer/static/js/453.ed3810f9.chunk.js",
     "index.html": "/LossLandscapeVisualizer/index.html",
     "main.4b35661b.css.map": "/LossLandscapeVisualizer/static/css/main.4b35661b.css.map",
-    "main.f6760696.js.map": "/LossLandscapeVisualizer/static/js/main.f6760696.js.map",
+    "main.bb277ba4.js.map": "/LossLandscapeVisualizer/static/js/main.bb277ba4.js.map",
     "453.ed3810f9.chunk.js.map": "/LossLandscapeVisualizer/static/js/453.ed3810f9.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4b35661b.css",
-    "static/js/main.f6760696.js"
+    "static/js/main.bb277ba4.js"
   ]
 }

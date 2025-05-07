@@ -14,33 +14,15 @@ ROOT_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(os.path.dirname(__file__), "previews")
 LANDSCAPE_DIR = os.path.join(os.path.dirname(__file__), "landscapes")
 DB_DIR = os.path.join(os.path.dirname(__file__), "decisionboundaries")
-"""
-@app.route("/list_models")
-def list_models():
-    model_dirs = []
-    for entry in os.scandir(MODELS_DIR):
-        if entry.is_dir():
-            if entry.name.startswith("mlp_"):
-                # Remove "mlp_" prefix and split the numbers
-                numbers = entry.name.replace("mlp_", "").split("_")
-                formatted = "[" + ", ".join(numbers) + "]"
-                model_dirs.append(formatted)
-            else:
-                model_dirs.append(entry.name)  # fallback, if no mlp_ prefix
-    return jsonify(model_dirs)
- 
 
 
 
-@app.route("/selected_model/<model>")
-def selected_model(model):
-    print(f"✅ Model selected on frontend: {model}")
-    return '', 204  # No content
-"""
+@app.route("/")
+def index():
+    return "✅ Backend is up and running!"
 
 @app.route("/list_datasets")
 def list_datasets():
-    print("🔵 /list_datasets was called")
     datasets = set()
     for entry in os.scandir(DATA_DIR):
         if entry.is_file():
@@ -107,14 +89,13 @@ def get_surface_plot_data():
         f"range{zoom}"
     )
      
-    print(cache_land_dir,cache_range_dir)
 
     
     a_path = os.path.join(cache_land_dir, "a_vals.npy")
     b_path = os.path.join(cache_land_dir, "b_vals.npy")
     loss_path = os.path.join(cache_land_dir, "loss.npy")
     zrange_path = os.path.join(cache_range_dir, "zrange.npy")
- 
+    
     if not (os.path.exists(a_path) and os.path.exists(b_path) and os.path.exists(loss_path) and os.path.exists(zrange_path)):
         return jsonify({"error": "Data not found"}), 404
     
@@ -171,6 +152,97 @@ def get_decbnd_plot_data():
             
     return jsonify(output)
 
+
+
+
+
+
+
+
+
+
+@app.route("/get_all_epoch_data", methods=["POST"])
+def get_all_epoch_data():
+    data = request.get_json()
+
+    model = data.get('model')  
+    dataset = data.get('dataset')
+    zoom = data.get('zoom')
+    split = 'train'
+
+    # Range of epochs to preload (you can tweak this!)
+    epoch_range = list(range(0, 1001, 10))  # 0,10,...,1000
+
+    all_surface = {}
+    all_decbnd = {}
+
+    for epoch in epoch_range:
+        # -----------------------------
+        # Surface plot data loading
+        # -----------------------------
+        cache_land_dir = os.path.join(
+            LANDSCAPE_DIR,
+            model,
+            dataset,
+            split,
+            f"range{zoom}",
+            f"ep{epoch}"
+        )
+        cache_range_dir = os.path.join(
+            LANDSCAPE_DIR,
+            model,
+            dataset,
+            split,
+            f"range{zoom}"
+        )
+
+        a_path = os.path.join(cache_land_dir, "a_vals.npy")
+        b_path = os.path.join(cache_land_dir, "b_vals.npy")
+        loss_path = os.path.join(cache_land_dir, "loss.npy")
+        zrange_path = os.path.join(cache_range_dir, "zrange.npy")
+
+        try:
+            a_vals = np.load(a_path)
+            b_vals = np.load(b_path)
+            losses = np.load(loss_path)
+            zrange = np.load(zrange_path)
+            surface_output = {
+                "a": a_vals.tolist(),
+                "b": b_vals.tolist(),
+                "loss": losses.tolist(),
+                "zrange": zrange.tolist()
+            }
+            all_surface[str(epoch)] = surface_output
+        except Exception as e:
+            print(f"⚠️ Failed to load surface data at epoch {epoch}: {e}")
+
+        # -----------------------------
+        # Decision boundary loading
+        # -----------------------------
+        try:
+            cache_bound_dir = os.path.join(DB_DIR, model, dataset)
+            decision_output_dir = os.path.join(cache_bound_dir, f"ep{epoch}.pkl")
+
+            if os.path.exists(decision_output_dir):
+                output = pickle.load(open(decision_output_dir, 'rb'))
+                output['x'] = output['xx'][:, 0]
+                output['y'] = output['yy'][0, :]
+                output['preds'] = output['preds'].T
+                for k, v in output.items():
+                    if k in ['train_labels', 'test_labels']:
+                        output[k] = v[:, 0].tolist()
+                    else:
+                        output[k] = v.tolist()
+                all_decbnd[str(epoch)] = output
+        except Exception as e:
+            print(f"⚠️ Failed to load decision boundary at epoch {epoch}: {e}")
+
+    return jsonify({
+        "surface": all_surface,
+        "decbnd": all_decbnd
+    })
+
+
 if __name__ == "__main__":
-    #app.run(debug=True, port=5000)
-    app.run(host="0.0.0.0", port=10000)
+    app.run(debug=True, port=5000)
+    #app.run(host="0.0.0.0", port=10000)

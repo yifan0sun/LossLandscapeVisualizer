@@ -64,10 +64,12 @@ def combine_models(base, dx, dy, a, b,arch):
     return new_model
  
 
-
-def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsize=10):
+def check_if_defective( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsize=10, remove = True):
+    
     CACHE_ROOT = "../backend/landscapes"
     MODELS_DIR = "../backend/models"
+    
+    print_about = "Processing: epoch %d, range %f, (%d,%d), %s, grid %d" % (epoch, ab_range,arch[0], len(arch), dataset, gridsize)
 
     train_str = 'train' if train else 'test'
     base_path = os.path.join(MODELS_DIR,  arch_to_name(arch), dataset,   f"ep{epoch}.pth")
@@ -87,29 +89,35 @@ def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsi
     a_file = os.path.join(cache_dir, "a_vals.npy")
     b_file = os.path.join(cache_dir, "b_vals.npy")
 
-    
-   
+
     # Load or initialize
     acand = np.linspace(-ab_range, ab_range, gridsize)
+    if not(os.path.exists(loss_file) and os.path.exists(a_file) and os.path.exists(b_file)):
+        #print('%s\nModel doesnt exist yet' %print_about)
+        return False
     if os.path.exists(loss_file) and os.path.exists(a_file) and os.path.exists(b_file):
+         
         a = np.load(a_file)
         if len(a) < len(acand):
-            print('Previously saved model is of lower resolution; recomputing')
+            #print('%s\nPreviously saved model is of lower resolution' %print_about)
+            return False
+        if len(a) > len(acand):
+            #print('%s\nPreviously saved model is of higher resolution' %print_about)
+            return False
         else:
             a = np.load(a_file)
             b = np.load(b_file)
             losses = np.load(loss_file)
-            print(f"📂 Loaded cached grid {losses.shape} from {cache_dir}")
-            print(a.shape,b.shape,losses.shape)
-            return a, b, losses
+            if np.isnan(losses).any():
+                print('%s\nlosses has nan, defective' %print_about)
+                return True
+            
     
 
     # New request
     a = np.linspace(-ab_range, ab_range, gridsize)
     b = np.linspace(-ab_range, ab_range, gridsize)
  
-    # Create full new grid
-    losses = torch.full((gridsize, gridsize), float('nan'))
     
       
     # Load model and directions
@@ -121,9 +129,101 @@ def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsi
     x = load_direction(os.path.join(cache_xy_dir, "x.pt"), arch)
     y = load_direction(os.path.join(cache_xy_dir, "y.pt"), arch)
 
+   
+    
+
+    ii = [3,  4,  3,   0, 6]
+    jj = [5, 9,   2,  8,  5]
+
+    for k in range(5):
+        i = ii[k]
+        j = jj[k]
+        
+        aa = a[i]
+        bb = b[j]
+
+        perturbed_model = combine_models(base_model, x, y, aa, bb, arch)
+        loss = compute_loss(perturbed_model, dataset, train=False)
+
+
+        if (np.abs(loss-losses[i,j])/min([loss,losses[i,j]])) > 1e-5:
+            print('%s\nlosses is defective %d, %f,%f' %(print_about,k,loss,losses[i,j]))
+
+            if remove:
+                os.remove(loss_file)
+                print("removed")
+            return True
+                 
+    #print('%s\nlosses is ok' %print_about)
+    return False
+         
+
+
+def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsize=10, overwrite = False):
+    CACHE_ROOT = "../backend/landscapes"
+    MODELS_DIR = "../backend/models"
+    
+    print_about = "Processing: epoch %d, range %f, (%d,%d), %s, grid %d" % (epoch, ab_range,arch[0], len(arch), dataset, gridsize)
+
+    train_str = 'train' if train else 'test'
+    base_path = os.path.join(MODELS_DIR,  arch_to_name(arch), dataset,   f"ep{epoch}.pth")
+    cache_dir = os.path.join(CACHE_ROOT, arch_to_name(arch), dataset, train_str, f"range{ab_range}",  f"ep{epoch}")
+    cache_xy_dir = os.path.join(CACHE_ROOT, arch_to_name(arch))
+    
+
+    os.makedirs(cache_dir, exist_ok=True)
+    os.makedirs(cache_xy_dir, exist_ok=True)
+    if not os.path.exists(os.path.join(cache_xy_dir, "x.pt")):
+        x,y = generate_random_directions(arch)
+        torch.save(x.state_dict(), os.path.join(cache_xy_dir, "x.pt"))
+        torch.save(y.state_dict(), os.path.join(cache_xy_dir, "y.pt"))
+
+      
+    loss_file = os.path.join(cache_dir, "loss.npy")
+    a_file = os.path.join(cache_dir, "a_vals.npy")
+    b_file = os.path.join(cache_dir, "b_vals.npy")
+
+    first_test_points  = False
+    defected = True
+   
+    # Load or initialize
+    acand = np.linspace(-ab_range, ab_range, gridsize)
+    if os.path.exists(loss_file) and os.path.exists(a_file) and os.path.exists(b_file):
+         
+        a = np.load(a_file)
+        if len(a) != len(acand):
+            print('%s\nPreviously saved model is of lower resolution; recomputing' %print_about)
+        else:
+            a = np.load(a_file)
+            b = np.load(b_file)
+            losses = np.load(loss_file)
+            if not overwrite:
+                return a,b, losses
+    
+
+    # New request
+    a = np.linspace(-ab_range, ab_range, gridsize)
+    b = np.linspace(-ab_range, ab_range, gridsize)
+ 
+    
+      
+    # Load model and directions
+    base_model = BlobMLP(hidden_layers=arch)
+    base_model.load_state_dict(torch.load(base_path))
+
+
+
+    x = load_direction(os.path.join(cache_xy_dir, "x.pt"), arch)
+    y = load_direction(os.path.join(cache_xy_dir, "y.pt"), arch)
+
+    
+        
+  
+    losses = torch.full((gridsize, gridsize), float('nan'))
     # Compute missing values
     for i, aa in enumerate(tqdm(a, desc="Outer loop (a)")):
         for j, bb in enumerate(b): 
+            
             perturbed_model = combine_models(base_model, x, y, aa, bb, arch)
             loss = compute_loss(perturbed_model, dataset, train=False)
             losses[i, j] = loss
@@ -133,11 +233,11 @@ def compute_loss_grid( arch,  dataset, train=True, epoch=1, ab_range=1.0, gridsi
     np.save(a_file, a)
     np.save(b_file, b)
 
-    print(f"✅ Updated and saved new grid at {cache_dir}")
+    print(f"%s\n Updated and saved new grid at %s" % (print_about,cache_dir))
     return a, b, losses
 
 
-def compute_and_save_zrange(arch, dataset, train=True, ab_range=1.0, gridsize=10):
+def compute_and_save_zrange(arch, dataset, train=True, ab_range=1.0, overwrite = False):
     CACHE_ROOT = "../backend/landscapes"
     MODELS_DIR = "../backend/models"
     
@@ -148,12 +248,13 @@ def compute_and_save_zrange(arch, dataset, train=True, ab_range=1.0, gridsize=10
 
 
     # --- If zrange already exists, skip ---
-    #if os.path.exists(zrange_file):
-    #    print(f"✅ zrange already computed at {zrange_file}. Skipping computation.")
-    #    return
+    if os.path.exists(zrange_file) and not overwrite:
+        #print(f"✅ zrange already computed at {zrange_file}. Skipping computation.")
+        return
 
     if not os.path.exists(cache_base_dir):
         print(f"⚠️ No cache directory found at {cache_base_dir}")
+        asdf
         return
 
 
@@ -172,8 +273,6 @@ def compute_and_save_zrange(arch, dataset, train=True, ab_range=1.0, gridsize=10
         except ValueError:
             continue  # Skip non-epoch folders
 
-        if epoch_num > 250:
-            continue  # Only consider epochs <= 250
 
         epoch_dir = os.path.join(cache_base_dir, ep_folder)
         loss_file = os.path.join(epoch_dir, "loss.npy")

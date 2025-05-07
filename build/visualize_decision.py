@@ -25,7 +25,7 @@ def compute_decision(arch, dataset, train=True, epoch=1):
     model_path = os.path.join(MODELS_DIR, arch_to_name(arch), dataset, f"ep{epoch}.pth")
     cache_dir = os.path.join(CACHE_ROOT, arch_to_name(arch), dataset)
     cache_file = os.path.join(cache_dir, f"ep{epoch}.pkl")
-    #print(cache_dir, cache_file,model_path)
+    print(cache_dir, cache_file)
 
     os.makedirs(cache_dir, exist_ok=True)
 
@@ -33,7 +33,6 @@ def compute_decision(arch, dataset, train=True, epoch=1):
     if os.path.exists(cache_file):
         with open(cache_file, 'rb') as f:
             decision_outputs = pickle.load(f)
-        #print("%s already exists" % cache_file)
         return decision_outputs
 
     # Otherwise compute
@@ -78,7 +77,6 @@ def compute_decision(arch, dataset, train=True, epoch=1):
 
     # Save outputs for future use
     with open(cache_file, 'wb') as f:
-        print("saving %s  " % cache_file)
         pickle.dump(decision_outputs, f)
 
     return decision_outputs

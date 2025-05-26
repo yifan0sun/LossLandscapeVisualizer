@@ -1,4 +1,5 @@
 import React, { useState, useEffect ,startTransition } from "react";
+//import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 import './App.css';
 import { useRef } from "react";
@@ -7,17 +8,17 @@ import { useRef } from "react";
 import { Plots } from './components/Plots';
 import { Controls } from './components/Controls';
 import { LeftPanel } from "./components/LeftPanel";
-
+import {AboutPage} from "./components/about"
 //const BASE_URL = "http://localhost:5000";
 const BASE_URL = "https://losslandscapevisualizer.onrender.com";
 
 
 
 
-
 function App() {
 
-
+const [page, setPage] = useState<'main' | 'about'>('main');
+ 
 
   // Selection states
 //const [selectedModel, setSelectedModel] = useState<string | null>(null);
@@ -168,11 +169,19 @@ const handlePlay = () => {
   }, [selectedDataset, selectedDepth, selectedWidth, selectedZoom, selectedEpoch]);
   
 
-  
+  if (page === 'about') {
+      return <AboutPage onBack={() => setPage('main')} />;
+    }
  
 
   return (
+
+    
+
     <div className="app-container">
+
+
+
       
       {/* Left Panel */}
 
@@ -190,7 +199,19 @@ const handlePlay = () => {
           
         <p style={{ textAlign: "left" , marginBottom: "0px" }}><b>About.</b> This tool visualizes loss landscapes during neural network training, providing insight
          into model behavior near local optima. By observing the deformation of the optimization surface close to the trained model (at (0,0)), we can better understand why some models are
-          easier or harder to train — for example, due to the presence of sharp minima or flat regions. Note that landscape characteristics depend on many factors,  e.g., class separability, geometry of loss function, etc.</p>
+          easier or harder to train — for example, due to the presence of sharp minima or flat regions. Note that landscape characteristics depend on many factors,  e.g., class separability, geometry of loss function, etc.   </p>
+          <p>
+
+   <button
+  onClick={() => setPage('about')}
+style={{
+    padding: '2px 8px',
+    width: 'fit-content',
+    maxWidth: '200px',
+    whiteSpace: 'nowrap'
+  }}
+>Click for more details</button>
+</p>
 
         <p style={{ textAlign: "left" , marginBottom: "0px" }}><b>More.</b> Visit  <a href="https://github.com/yifan0sun/LossLandscapeVisualizer/blob/main/README.md">the project README file</a></p>
         <p style={{ textAlign: "left" , marginBottom: "0px" }}><b>Prototype.</b>  Feedback and suggestions are welcome! Please visit <a href="https://sites.google.com/view/visualizerprojects/home">optimalvisualizer.com</a> to give feedback or visit more visually pleasing explainability apps.</p>

@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/LossLandscapeVisualizer/static/css/main.4b35661b.css",
-    "main.js": "/LossLandscapeVisualizer/static/js/main.6bff280c.js",
-    "static/js/453.ed3810f9.chunk.js": "/LossLandscapeVisualizer/static/js/453.ed3810f9.chunk.js",
-    "index.html": "/LossLandscapeVisualizer/index.html",
-    "main.4b35661b.css.map": "/LossLandscapeVisualizer/static/css/main.4b35661b.css.map",
-    "main.6bff280c.js.map": "/LossLandscapeVisualizer/static/js/main.6bff280c.js.map",
-    "453.ed3810f9.chunk.js.map": "/LossLandscapeVisualizer/static/js/453.ed3810f9.chunk.js.map"
+    "main.css": "/static/css/main.4b35661b.css",
+    "main.js": "/static/js/main.51af4fe1.js",
+    "static/js/453.d15772e4.chunk.js": "/static/js/453.d15772e4.chunk.js",
+    "index.html": "/index.html",
+    "main.4b35661b.css.map": "/static/css/main.4b35661b.css.map",
+    "main.51af4fe1.js.map": "/static/js/main.51af4fe1.js.map",
+    "453.d15772e4.chunk.js.map": "/static/js/453.d15772e4.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.4b35661b.css",
-    "static/js/main.6bff280c.js"
+    "static/js/main.51af4fe1.js"
   ]
 }

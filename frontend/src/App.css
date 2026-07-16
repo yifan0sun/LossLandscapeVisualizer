@@ -1,0 +1,193 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  font-family: sans-serif;
+  background-color: #ffffff; /* match center */
+  overflow: hidden; /* 🔥 prevents outer scroll */
+}
+
+/* Left Panel */
+.left-panel {
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.5;
+  flex-direction: column;
+  width: 10%;
+  min-width: 100px;
+  background-color: #e0f7fa;
+  color: #333333;
+  padding: 16px;
+  border-right: 1px solid #b2dfdb;
+  margin-bottom: 8px;
+  display: block;
+  box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.05);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Center Panel */
+.center-panel {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  color: #333333;
+  padding: 16px 16px 0 16px; /* ✅ Removes bottom padding */
+  flex: 1;
+  height: 100vh; /* ✅ Fully fix center height to window */
+  overflow: hidden;
+}
+
+.center-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100%;
+  touch-action: manipulation;
+  flex-shrink: 0; /* ✅ Prevent children from collapsing */
+}
+/* Right Panel */
+.right-panel {
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.5;
+  width: 10%;
+  min-width: 100px;
+  background-color: #f1f8e9;
+  color: #333333;
+  padding: 16px;
+  border-left: 1px solid #b2dfdb;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.model-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 30%;  /* Limit model list height if you want */
+}
+.model-cartoon {
+  flex: 0 0 auto;
+  margin-top: 16px; /* ✅ About 1cm gap */
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* Model folder and items */
+.model-folder {
+  display: flex;           
+  align-items: center;     
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-family: monospace;
+  background-color: #ffffff;
+}
+
+.model-folder:hover {
+  background-color: #b2dfdb;
+}
+
+.model-folder.selected {
+  background-color: #4db6ac;
+  color: #ffffff;
+  font-weight: bold;
+}
+.dataset-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px); /* Adjust based on header height if needed */
+}
+.dataset-folder {
+  display: flex;                
+  align-items: center;          
+  cursor: pointer;
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  font-family: monospace;
+  background-color: #ffffff;
+}
+
+.dataset-folder:hover {
+  background-color: #b2dfdb;
+}
+
+.dataset-folder.selected {
+  background-color: #4db6ac;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Sliders */
+input[type="range"] {
+  width: 100%;
+}
+
+button {
+  background-color: #4db6ac;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #00897b;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: #b2dfdb;
+  border-radius: 3px;
+  outline: none;
+}
+.plots-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  flex: 0 0 auto;
+  overflow: visible;  /* 🔥 Don’t clip anything here */
+}
+.left-plot,
+.right-plot {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  max-width: 50vw;  /* ✅ shrink gracefully */
+  box-sizing: border-box; 
+}
+
+
+
+/* Custom styling for slider container */
+.slider-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 20px;
+  font-size: 14px;
+  font-family: sans-serif;
+  color: #333333;
+}
+
+.slider-labels {
+  margin-top: 0px;
+  text-align: center;
+  font-size: 12px;
+}
+

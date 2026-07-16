@@ -10,8 +10,7 @@ import { Controls } from './components/Controls';
 import { LeftPanel } from "./components/LeftPanel";
 import {AboutPage} from "./components/about"
 //const BASE_URL = "http://localhost:5000";
-const BASE_URL = "https://losslandscapevisualizer.onrender.com";
-
+const BASE_URL = "https://yifan0sun-losslandscapevizualizer-backend.hf.space";
 
 
 

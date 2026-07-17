@@ -8,20 +8,17 @@ from huggingface_hub import snapshot_download
 
 ROOT_DIR = os.path.dirname(__file__)
 
-# Download data from the Hugging Face dataset repo at startup
-DATA_ROOT = snapshot_download(
-    repo_id="yifan0sun/losslandscapevisualizer_dataset",
-    repo_type="dataset",
-    local_dir=os.path.join(ROOT_DIR, "hf_data"),
-)
+ 
+
+DATA_ROOT = "/code/hf_data"
+DATA_DIR = os.path.join(DATA_ROOT, "previews")
+LANDSCAPE_DIR = os.path.join(DATA_ROOT, "landscapes")
+DB_DIR = os.path.join(DATA_ROOT, "decisionboundaries")
 
 
 app = Flask(__name__)
 CORS(app)  # allow React to make requests
-
-DATA_DIR = os.path.join(DATA_ROOT, "previews")
-LANDSCAPE_DIR = os.path.join(DATA_ROOT, "landscapes")
-DB_DIR = os.path.join(DATA_ROOT, "decisionboundaries")
+ 
 
 
 @app.route("/")

@@ -100,7 +100,7 @@ export const Controls = React.memo(function Controls({
         id="epoch-slider"
         type="range"
         min={0}
-        max={1000}
+        max={800}
         step={10}
         value={selectedEpoch}
         onChange={(e) => {

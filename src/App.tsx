@@ -2,15 +2,16 @@ import React, { useState, useEffect ,startTransition } from "react";
 
 import './App.css';
 import { useRef } from "react";
-
  
 import { Plots } from './components/Plots';
 import { Controls } from './components/Controls';
 import { LeftPanel } from "./components/LeftPanel";
 
 //const BASE_URL = "http://localhost:5000";
-const BASE_URL = "https://losslandscapevisualizer.onrender.com";
+//const BASE_URL = "https://losslandscapevisualizer.onrender.com";
+//const BASE_URL = "http://localhost:10000";
 
+const BASE_URL = "https://yifan0sun-losslandscapevizualizer-backend.hf.space";
 
 
 
@@ -92,8 +93,8 @@ const handlePlay = () => {
     let currentEpoch = selectedEpoch;
 
     const interval = setInterval(() => {
-      currentEpoch += 10;
-      if (currentEpoch > 1000) {
+      currentEpoch += 20;
+      if (currentEpoch > 800) {
         clearInterval(interval);
         playInterval.current = null;
         setIsPlaying(false);
